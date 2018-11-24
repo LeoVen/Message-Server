@@ -1,5 +1,5 @@
 *.o
 
 # executable names
-server
-user
+build/server
+build/client
