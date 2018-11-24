@@ -1,5 +1,6 @@
-#include "shared_memory.h"
+#include <sys/msg.h>
 #include "sfunctions.h"
+#include "shared_memory.h"
 
 int main(int argc, char *argv[])
 {
@@ -50,6 +51,12 @@ int main(int argc, char *argv[])
 	char *processors = sf_processors();
 	printf("%s\n", processors);
 	free(processors);
+
+	msg_create();
+
+	sleep(10);
+
+	msg_delete();
 
 	printf("Exiting...\n");
 	return 0;

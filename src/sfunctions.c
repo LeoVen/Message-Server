@@ -1,9 +1,8 @@
 // server functions
 
-#include "sfunctions.h"
 #include <time.h>
-
-#define BUFF_SIZE 100
+#include "sfunctions.h"
+#include "macros.h"
 
 char *sf_date()
 {

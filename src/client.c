@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "cfunctions.h"
 
 int main(int argc, char const *argv[])
@@ -9,6 +8,10 @@ int main(int argc, char const *argv[])
 	cf_help();
 	
 	cf_copyright();
+
+	pid_t client_pid = getpid();
+
+	printf("My PID: %d\n", client_pid);
 
 	return 0;
 }
