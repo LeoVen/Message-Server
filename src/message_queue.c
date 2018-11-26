@@ -3,8 +3,7 @@
 
 int msg_create()
 {
-	// This line should be the same for every message queue functions
-	key_t msg_key = ftok("/home", 'a');
+	key_t msg_key = ftok(FILE_NAME, PROJ_QUEUE);
 
 	// Creating message queue
 	int message_id = msgget(msg_key, 0600 | IPC_CREAT);
@@ -13,13 +12,14 @@ int msg_create()
 	if (message_id == -1)
 		printf("Failed to create message queue\n");
 
+	printf("Created message queue of id %d\n", message_id);
+
 	return message_id;
 }
 
 void msg_delete()
 {
-	// This line should be the same for every message queue functions
-	key_t msg_key = ftok("/home", 'a');
+	key_t msg_key = ftok(FILE_NAME, PROJ_QUEUE);
 
 	// Getting message queue
 	int message_id = msgget(msg_key, 0);
@@ -42,8 +42,7 @@ void msg_delete()
 // This is treated in the client input
 void msg_send(char *content)
 {
-	// This line should be the same for every message queue functions
-	key_t msg_key = ftok("/home", 'a');
+	key_t msg_key = ftok(FILE_NAME, PROJ_QUEUE);
 
 	// Getting message queue
 	int message_id = msgget(msg_key, 0);
@@ -58,17 +57,13 @@ void msg_send(char *content)
 		if (result == -1)
 			printf("Failed to write to message queue of id %d\n",
 				message_id);
-		else
-			printf("Successfully written to message queue of id %d\n",
-				message_id);
 	}
 }
 
 // Parameter is the process id of the removed message
 char *msg_read(pid_t *pid)
 {
-	// This line should be the same for every message queue functions
-	key_t msg_key = ftok("/home", 'a');
+	key_t msg_key = ftok(FILE_NAME, PROJ_QUEUE);
 
 	// Getting message queue
 	int message_id = msgget(msg_key, 0);
@@ -106,6 +101,7 @@ char *msg_read(pid_t *pid)
 			else
 				printf("Read from the message queue of id %d\n", message_id);
 
+			*pid = info.msg_lspid;
 
 			return strdup(message);
 		}

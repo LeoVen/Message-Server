@@ -7,17 +7,38 @@ int main(int argc, char *argv[])
 {
 	printf("Initializing server\n");
 
+	// Since there is only one message queue, the key will always be the same
 	msg_create();
 
 	char *command = NULL;
 	char *result = NULL;
 
-	// PID destination
-	pid_t pid = 0;
+	// PID destination taken from the message queue
+	pid_t mq_pid = 0;
+
+	// if it is a valid command to be sent to the memory segment
+	bool valid = false;
+
+	key_t k_result   = ftok(FILE_NAME, PROJ_RESULT);
+	key_t k_receiver = ftok(FILE_NAME, PROJ_RECEIVER);
+
+	int shm_id_result   = shm_create(k_result, BUFF_SIZE);
+	int shm_id_receiver = shm_create(k_receiver, sizeof(int));
+
+	// Server can't work without all memory segments
+	if (shm_id_receiver == -1 || shm_id_receiver == -1)
+	{
+		printf("Memory segment error\n");
+
+		return -1;
+	}
+
+	char *memory_content = shmat(shm_id_result, 0, 0);
+	pid_t *shm_pid = shmat(shm_id_receiver, 0, 0);
 
 	while (1)
 	{
-		command = msg_read(&pid);
+		command = msg_read(&mq_pid);
 
 		if (command != NULL)
 		{
@@ -26,109 +47,73 @@ int main(int argc, char *argv[])
 			{
 				result = sf_date();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "time") == 0)
 			{
 				result = sf_time();
 
-				printf("%s\n", result);
-
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "nodename") == 0)
 			{
 				result = sf_nodename();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "sysname") == 0)
 			{
 				result = sf_sysname();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "release") == 0)
 			{
 				result = sf_release();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "version") == 0)
 			{
 				result = sf_version();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "machine") == 0)
 			{
 				result = sf_machine();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "process") == 0)
 			{
 				result = sf_process();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "freeram") == 0)
 			{
 				result = sf_freeram();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "totalram") == 0)
 			{
 				result = sf_totalram();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "uptime") == 0)
 			{
 				result = sf_uptime();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "processors") == 0)
 			{
 				result = sf_processors();
 				
-				printf("%s\n", result);
-				
-				free(result);
-				result = NULL;
+				valid = true;
 			}
 			else if (strcmp(command, "shutdown") == 0)
 			{
@@ -137,18 +122,42 @@ int main(int argc, char *argv[])
 				free(result);
 				free(command);
 
+				valid = false;
+
 				break;
 			}
 			else 
 			{
 				printf("Invalid command\n");
+
+				free(command);
+
+				*shm_pid = INVALID_COMMAND;
+
+				valid = false;
 			}
 
-			free(command);
+			if (valid)
+			{
+				strcpy(memory_content, result);
+
+				*shm_pid = mq_pid;
+
+				free(result);
+				result = NULL;
+
+				free(command);
+			}
 		}
 	}
 
+	shmdt(shm_pid);
+	shmdt(memory_content);
+
 	msg_delete();
+
+	shm_delete(k_result, shm_id_result);
+	shm_delete(k_receiver, shm_id_receiver);
 
 	printf("Exiting...\n");
 

@@ -12,7 +12,7 @@ int shm_create(key_t key, size_t size)
         return -1;
     }
 
-    printf("Shared memory created. ID: %d\n", shmid);
+    printf("Created shared memory block of id %d\n", shmid);
 
     return shmid;
 }
@@ -23,11 +23,11 @@ int shm_delete(key_t key, int shmid)
 
     if (shm_ctl != 0)
     {
-        printf("Failed to delete shared memory.\n");
+        printf("Failed to remove shared memory block of id %d.\n", shmid);
         return -1;
     }
 
-    printf("Shared memory deleted. ID: %d\n", shmid);
+    printf("Removed shared memory block of id %d\n", shmid);
 
     return 0;
 }
@@ -38,12 +38,12 @@ int shm_getid(key_t key)
 
     if (shmid == -1)
     {
-        printf("Failed to locate shared memory ID.\n");
+        printf("Failed to locate shared memory block id.\n");
 
         return -1;
     }
 
-    printf("Located shared memory. ID: %d\n", shmid);
+    //printf("Located shared memory blcok of id %d\n", shmid);
 
     return shmid;
 }
