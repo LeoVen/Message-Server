@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
+#include <time.h>
+#include <unistd.h>
 
 // All server functions
 

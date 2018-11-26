@@ -1,6 +1,4 @@
 // server functions
-
-#include <time.h>
 #include "sfunctions.h"
 #include "macros.h"
 

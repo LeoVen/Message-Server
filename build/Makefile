@@ -10,7 +10,7 @@ targets: server client
 	@echo ""
 	@echo "ALL DONE"
 
-server: server.o shared_memory.o sfunctions.o message_queue.o
+server: server.o shared_memory.o message_queue.o sfunctions.o
 	@echo ""
 	@echo "Linking Server"
 	$(CC) -I $(INCLUDE) $(FLAGS) $^ -o $@
@@ -30,12 +30,12 @@ message_queue.o: $(SRC)/message_queue.c $(INCLUDE)/message_queue.h
 	@echo "Compiling $<"
 	$(CC) -I $(INCLUDE) $(CFLAGS) -c $< -o $@
 
-sfunctions.o: $(SRC)/sfunctions.c $(INCLUDE)/sfunctions.h $(INCLUDE)/macros.h
+sfunctions.o: $(SRC)/sfunctions.c $(INCLUDE)/sfunctions.h
 	@echo ""
 	@echo "Compiling $<"
 	$(CC) -I $(INCLUDE) $(CFLAGS) -c $< -o $@
 
-client: client.o cfunctions.o message_queue.o
+client: client.o shared_memory.o message_queue.o cfunctions.o
 	@echo ""
 	@echo "Linking Client"
 	$(CC) -I $(INCLUDE) $(FLAGS) $^ -o $@
@@ -56,15 +56,19 @@ runs: server
 runc: client
 	./client
 
+clear:
+	rm -f *.o
+	rm server client
+
 help: 
 	@echo ""
-	@echo "O Make compilará dois executaveis:"
+	@echo "This makefile will produce two executables:"
 	@echo " - server"
 	@echo " - client"
 	@echo ""
-	@echo "Para rodar o servidor:"
+	@echo "To run the server:"
 	@echo "> make runs"
 	@echo ""
-	@echo "Para rodar o client:"
+	@echo "To run the client:"
 	@echo "> make runc"
 	@echo ""

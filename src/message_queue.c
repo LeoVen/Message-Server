@@ -1,7 +1,9 @@
+#include "macros.h"
 #include "message_queue.h"
 
 int msg_create()
 {
+	// This line should be the same for every message queue functions
 	key_t msg_key = ftok("/home", 'a');
 
 	// Creating message queue
@@ -16,6 +18,7 @@ int msg_create()
 
 void msg_delete()
 {
+	// This line should be the same for every message queue functions
 	key_t msg_key = ftok("/home", 'a');
 
 	// Getting message queue
@@ -25,7 +28,6 @@ void msg_delete()
 		printf("Failed to locate message queue\n");
 	else
 	{
-
 		// Removing queue
 		int result = msgctl(message_id, IPC_RMID, 0);
 
@@ -36,6 +38,62 @@ void msg_delete()
 	}
 }
 
-void msg_send(char *content);
+// The size of content must be at most BUFF_SIZE
+// This is treated in the client input
+void msg_send(char *content)
+{
+	// This line should be the same for every message queue functions
+	key_t msg_key = ftok("/home", 'a');
 
-char *msg_read();
+	// Getting message queue
+	int message_id = msgget(msg_key, 0);
+
+	if (message_id == -1)
+		printf("Failed to locate message queue\n");
+	else
+	{
+		// Writing to message queue
+		int result = msgsnd(message_id, content, sizeof(char) * BUFF_SIZE, 0);
+
+		if (result == -1)
+			printf("Failed to write to message queue of id %d\n", message_id);
+		else
+			printf("Successfully written to message queue of id %d\n", message_id);
+	}
+}
+
+char *msg_read()
+{
+	// This line should be the same for every message queue functions
+	key_t msg_key = ftok("/home", 'a');
+
+	// Getting message queue
+	int message_id = msgget(msg_key, 0);
+
+	if (message_id == -1)
+	{
+		printf("Failed to locate message queue\n");
+
+		return NULL;
+	}
+	else
+	{
+		char message[BUFF_SIZE];
+
+		// Reading from queue
+		int result = msgrcv(message_id, message, sizeof(char) * BUFF_SIZE, 0, 0);
+
+		if (result == -1)
+		{
+			printf("Failed to read message queue of id %d\n", message_id);
+
+			return NULL;
+		}
+		else
+		{
+			printf("Read message queue of id %d\n", message_id);
+
+			return strdup(message);
+		}
+	}
+}

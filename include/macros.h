@@ -1,4 +1,4 @@
 // Defines common macros to server and client
 
-#define BUFF_SIZE 100
+#define BUFF_SIZE 512
 
