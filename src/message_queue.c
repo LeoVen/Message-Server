@@ -56,13 +56,16 @@ void msg_send(char *content)
 		int result = msgsnd(message_id, content, sizeof(char) * BUFF_SIZE, 0);
 
 		if (result == -1)
-			printf("Failed to write to message queue of id %d\n", message_id);
+			printf("Failed to write to message queue of id %d\n",
+				message_id);
 		else
-			printf("Successfully written to message queue of id %d\n", message_id);
+			printf("Successfully written to message queue of id %d\n",
+				message_id);
 	}
 }
 
-char *msg_read()
+// Parameter is the process id of the removed message
+char *msg_read(pid_t *pid)
 {
 	// This line should be the same for every message queue functions
 	key_t msg_key = ftok("/home", 'a');
@@ -81,7 +84,8 @@ char *msg_read()
 		char message[BUFF_SIZE];
 
 		// Reading from queue
-		int result = msgrcv(message_id, message, sizeof(char) * BUFF_SIZE, 0, 0);
+		int result = msgrcv(message_id, message, sizeof(char) * BUFF_SIZE,
+			0, 0);
 
 		if (result == -1)
 		{
@@ -91,7 +95,17 @@ char *msg_read()
 		}
 		else
 		{
-			printf("Read message queue of id %d\n", message_id);
+			struct msqid_ds info;
+
+			// Getting info from message queue
+			result = msgctl(message_id, IPC_STAT, &info);
+
+			if (result == 0)
+				printf("Read from PID %d from the message queue of id %d\n",
+					info.msg_lspid, message_id);
+			else
+				printf("Read from the message queue of id %d\n", message_id);
+
 
 			return strdup(message);
 		}

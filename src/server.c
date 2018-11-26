@@ -12,9 +12,12 @@ int main(int argc, char *argv[])
 	char *command = NULL;
 	char *result = NULL;
 
+	// PID destination
+	pid_t pid = 0;
+
 	while (1)
 	{
-		command = msg_read();
+		command = msg_read(&pid);
 
 		if (command != NULL)
 		{
@@ -133,8 +136,6 @@ int main(int argc, char *argv[])
 
 				free(result);
 				free(command);
-
-				sleep(5);
 
 				break;
 			}
