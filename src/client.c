@@ -13,6 +13,7 @@ int main(int argc, char const *argv[])
 	key_t k_result   = ftok(FILE_NAME, PROJ_RESULT);
 	key_t k_receiver = ftok(FILE_NAME, PROJ_RECEIVER);
 
+	// Memroy segments id
 	int shm_id_result   = shm_getid(k_result);
 	int shm_id_receiver = shm_getid(k_receiver);
 
@@ -81,8 +82,8 @@ int main(int argc, char const *argv[])
 			clock_t begin = clock();
 			clock_t end;
 
-			// This will prevent from the same client from reading its message
-			// too soon if the last message was from the same client
+			// This will prevent the same client from reading its message too
+			// soon if the last message was from the same client
 			*shm_pid = 0;
 
 			// Wait for response

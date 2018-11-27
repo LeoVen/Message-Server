@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
 	// if it is a valid command to be sent to the memory segment
 	bool valid = false;
 
+	// Creating memory segments
 	key_t k_result   = ftok(FILE_NAME, PROJ_RESULT);
 	key_t k_receiver = ftok(FILE_NAME, PROJ_RECEIVER);
 
@@ -33,8 +34,16 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	// Attributing pointers to both memory segments
 	char *memory_content = shmat(shm_id_result, 0, 0);
 	pid_t *shm_pid = shmat(shm_id_receiver, 0, 0);
+
+	if (memory_content == (char*)-1 || shm_pid == (pid_t*)-1)
+	{
+		printf("Memory segment error\n");
+
+		return -1;
+	}
 
 	while (1)
 	{
@@ -128,7 +137,7 @@ int main(int argc, char *argv[])
 			}
 			else 
 			{
-				printf("Invalid command\n");
+				printf("Invalid command from PID %d\n", mq_pid);
 
 				free(command);
 
@@ -137,6 +146,9 @@ int main(int argc, char *argv[])
 				valid = false;
 			}
 
+			// If it was a valid command to the server, copy its content to the
+			// memory segment and put in the PID received from the message
+			// queue for the client to read. Then free all resources.
 			if (valid)
 			{
 				strcpy(memory_content, result);
@@ -151,11 +163,14 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// Detatching pointers
 	shmdt(shm_pid);
 	shmdt(memory_content);
 
+	// Deletingmessage queue
 	msg_delete();
 
+	// Deleting memory segments
 	shm_delete(k_result, shm_id_result);
 	shm_delete(k_receiver, shm_id_receiver);
 
